@@ -1,0 +1,55 @@
+<h2>gmap</h2>
+
+<%= form_with url: map_request_path, method: :get do |f|%>
+  <%= f.text_field :address%>
+  <%= f.submit '地図表示'%>
+<% end %>
+
+<div id='map'></div>
+
+<style>
+#map{
+  height: 500px;
+}
+</style>
+
+<script>
+
+const locations = [
+  { name: "東京タワー", lat: 35.6585805, lng: 139.7454329, id:1 },
+  { name: "京都タワー", lat: 34.9875441, lng: 135.7592164, id:2 },
+  { name: "通天閣", lat: 34.6524992, lng: 135.5063058, id:3 }
+];
+
+let map;
+const maps = gon.maps;
+
+function initMap(){
+  map = new google.maps.Map(document.getElementById('map'), {
+  center: {lat: 33.514425, lng: 139.311842},
+  zoom: 7
+  });
+
+let currentWindow;
+
+  locations.map(d => {
+    // マーカーをつける
+    const marker = new google.maps.Marker({
+      position: {lat: d.lat, lng: d.lng},
+      map: map
+    });
+
+    // マーカークリックしたら地名をポップアップさせる
+    marker.addListener('click', () => {
+      currentWindow && currentWindow.close();
+      const url= `<%= link_to "${d.name}", "/maps/${d.id}" %>`
+      const infoWindow = new google.maps.InfoWindow({content: url});
+      infoWindow.open(map, marker);
+      currentWindow = infoWindow;
+    });
+  });
+}
+
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDekF2nUeq0Hsswmv1-yjLjWWL9PXxkDfI&callback=initMap" async defer></script>
